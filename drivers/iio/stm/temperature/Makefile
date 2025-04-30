@@ -1,20 +1,28 @@
 # SPDX-License-Identifier: GPL-2.0
 #
-# Makefile for industrial I/O temperature drivers
-#
+# Makefile for Temperature sensors
 
 include Kbuild
 
 ifeq ($(KERNELRELEASE),)
 
-KBUILD_OPTIONS += CONFIG_IIO_STTS22H=m
+# List of subdirectories to build
+SUBDIRS := $(shell ls -d */ | tr -d '/')
 
+# Default target
+all:
+	$(foreach subdir,$(SUBDIRS),(cd $(subdir) && $(MAKE) modules);)
+
+# Target for building all modules
 modules:
-	$(MAKE) -C $(KDIR) M=$(PWD) modules $(KBUILD_OPTIONS)
+	$(foreach subdir,$(SUBDIRS),(cd $(subdir) && $(MAKE) modules);)
 
+# Target for installing all modules
 modules_install:
-	$(MAKE) -C $(KDIR) M=$(PWD) modules_install
+	$(foreach subdir,$(SUBDIRS),(cd $(subdir) && $(MAKE) modules_install);)
 
+# Target for cleaning all modules
 clean:
-	$(MAKE) -C $(KDIR) M=$(PWD) clean
+	$(foreach subdir,$(SUBDIRS),(cd $(subdir) && $(MAKE) clean);)
+
 endif
