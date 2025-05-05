@@ -7,7 +7,7 @@ include Kbuild
 
 ifeq ($(KERNELRELEASE),)
 # List of subdirectories to build
-SUBDIRS := accel imu magnetometer pressure temperature tmos
+SUBDIRS := accel humidity imu magnetometer pressure temperature tmos
 
 all:
 	$(foreach subdir,$(SUBDIRS),(cd $(subdir) && $(MAKE) modules);)
