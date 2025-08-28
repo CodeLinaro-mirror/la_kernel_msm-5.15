@@ -284,15 +284,6 @@ static int st_asm330lhhx_enable_irqline(struct st_asm330lhhx_hw *hw,
 	if (err < 0)
 		return err;
 
-	/* disable embedded function interrupt */
-	if (st_asm330lhhx_events_enabled(hw)) {
-		err = st_asm330lhhx_write_locked(hw,
-				      hw->embfunc_pg0_irq_reg,
-				      enable ? hw->interrupt_enable : 0);
-		if (err < 0)
-			return err;
-	}
-
 	return 0;
 }
 
@@ -301,7 +292,7 @@ static int st_asm330lhhx_read_fifo(struct st_asm330lhhx_hw *hw)
 	u8 iio_buf[ALIGN(ST_ASM330LHHX_SAMPLE_SIZE, sizeof(s64)) +
 		   sizeof(s64) + sizeof(s64)];
 	u8 buf[32 * ST_ASM330LHHX_FIFO_SAMPLE_SIZE], tag, *ptr;
-	int i, err, word_len, fifo_len, read_len;
+	int i, err, word_len, fifo_len, read_len = 0;
 	bool already_updated = false;
 	__le64 hw_timestamp_push;
 	struct iio_dev *iio_dev;
@@ -689,6 +680,7 @@ static irqreturn_t st_asm330lhhx_handler_thread(int irq, void *private)
 	if (hw->settings->st_mlc_probe)
 		st_asm330lhhx_mlc_check_status(hw);
 
+
 	mutex_lock(&hw->fifo_lock);
 	st_asm330lhhx_read_fifo(hw);
 	clear_bit(ST_ASM330LHHX_HW_FLUSH, &hw->state);
@@ -696,7 +688,7 @@ static irqreturn_t st_asm330lhhx_handler_thread(int irq, void *private)
 
 	/* if irq line is the same of FIFO manage it */
 	if (hw->irq_emb == hw->irq)
-		return st_asm330lhhx_event_handler(hw);
+		st_asm330lhhx_event_handler(hw);
 
 	return IRQ_HANDLED;
 }
