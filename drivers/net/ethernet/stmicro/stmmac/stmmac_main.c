@@ -1288,6 +1288,31 @@ static void stmmac_fpe_link_state_handle(struct stmmac_priv *priv, bool is_up)
 	}
 }
 
+/**
+ *  stmmac_mac_config_rx_queues_routing - Configure RX Queue Routing
+ *  @priv: driver private structure
+ *  Description: It is used for configuring the RX queue routing
+ */
+static void stmmac_mac_config_rx_queues_routing(struct stmmac_priv *priv)
+{
+	u32 rx_queues_count = priv->plat->rx_queues_to_use;
+	u32 queue;
+	u8 packet;
+
+	for (queue = 0; queue < rx_queues_count; queue++) {
+		/* no specific packet type routing specified for the queue */
+		if (priv->plat->rx_queues_cfg[queue].pkt_route == 0x0)
+			continue;
+
+		packet = priv->plat->rx_queues_cfg[queue].pkt_route;
+		stmmac_rx_queue_routing(priv, priv->hw, packet, queue);
+
+		/* Configure Multicast and broadcast additionally if enabled */
+		if (priv->plat->rx_queues_cfg[queue].mbcast_route)
+			stmmac_rx_queue_routing(priv, priv->hw, PACKET_MCBCQ, queue);
+	}
+}
+
 static void stmmac_mac_link_down(struct phylink_config *config,
 				 unsigned int mode, phy_interface_t interface)
 {
@@ -1517,6 +1542,7 @@ static void stmmac_mac_link_up(struct phylink_config *config,
 	if (priv->plat->xpcs_linkup)
 		priv->plat->xpcs_linkup(priv->plat->bsp_priv, speed);
 
+	stmmac_mac_config_rx_queues_routing(priv);
 	if (!priv->plat->fixed_phy_mode || !priv->hw->qxpcs ||
 	    !priv->hw->qxpcs->c37_an_en ||
 	    (priv->plat->fixed_phy_mode && !is_c37_an_supported(priv))) {
@@ -3693,31 +3719,6 @@ static void stmmac_mac_config_tx_queues_prio(struct stmmac_priv *priv)
 
 		prio = priv->plat->tx_queues_cfg[queue].prio;
 		stmmac_tx_queue_prio(priv, priv->hw, prio, queue);
-	}
-}
-
-/**
- *  stmmac_mac_config_rx_queues_routing - Configure RX Queue Routing
- *  @priv: driver private structure
- *  Description: It is used for configuring the RX queue routing
- */
-static void stmmac_mac_config_rx_queues_routing(struct stmmac_priv *priv)
-{
-	u32 rx_queues_count = priv->plat->rx_queues_to_use;
-	u32 queue;
-	u8 packet;
-
-	for (queue = 0; queue < rx_queues_count; queue++) {
-		/* no specific packet type routing specified for the queue */
-		if (priv->plat->rx_queues_cfg[queue].pkt_route == 0x0)
-			continue;
-
-		packet = priv->plat->rx_queues_cfg[queue].pkt_route;
-		stmmac_rx_queue_routing(priv, priv->hw, packet, queue);
-
-		/* Configure Multicast and broadcast additionally if enabled */
-		if (priv->plat->rx_queues_cfg[queue].mbcast_route)
-			stmmac_rx_queue_routing(priv, priv->hw, PACKET_MCBCQ, queue);
 	}
 }
 
