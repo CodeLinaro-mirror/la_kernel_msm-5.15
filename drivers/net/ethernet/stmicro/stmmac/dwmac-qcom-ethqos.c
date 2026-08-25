@@ -6054,6 +6054,8 @@ static int ethqos_remove_sysfs(struct qcom_ethqos *ethqos)
 	sysfs_remove_file(&net_dev->dev.kobj,
 			  &dev_attr_phy_off.attr);
 
+	qcom_ethqos_serdes_remove_sysfs(ethqos);
+
 	return 0;
 }
 
@@ -6106,6 +6108,17 @@ static int ethqos_create_sysfs(struct qcom_ethqos *ethqos)
 					&dev_attr_rx_clock_rdy.attr);
 		if (ret)
 			ETHQOSERR(" Can't create rx_clock_rdy sysfs node");
+	}
+
+	if (priv->plat->interface == PHY_INTERFACE_MODE_SGMII ||
+	    priv->plat->interface == PHY_INTERFACE_MODE_2500BASEX ||
+	    priv->plat->interface == PHY_INTERFACE_MODE_USXGMII ||
+	    priv->plat->interface == PHY_INTERFACE_MODE_5GBASER) {
+		ret = qcom_ethqos_serdes_create_sysfs(ethqos);
+		if (ret) {
+			ETHQOSERR("unable to create serdes sysfs nodes\n");
+			goto fail;
+		}
 	}
 
 	return ret;
