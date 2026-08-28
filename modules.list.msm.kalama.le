@@ -100,14 +100,3 @@ c1dcvs_scmi.ko
 bcl_pmic5.ko
 nvme-core.ko
 nvme.ko
-smp2p.ko
-qmi_helpers.ko
-qcom_ramdump.ko
-qcom_glink.ko
-qcom_glink_smem.ko
-qcom_smd.ko
-rproc_qcom_common.ko
-qcom_pil_info.ko
-qcom_q6v5.ko
-qcom_sysmon.ko
-qcom_q6v5_pas.ko
