@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2021 STMicroelectronics Inc.
+ * Copyright 2021, 2026 STMicroelectronics Inc.
  */
 
 #ifndef __ST_LPS22DF_H
@@ -23,6 +23,7 @@
 
 #define ST_LPS22DF_DEV_NAME			"lps22df"
 #define ST_LPS28DFW_DEV_NAME			"lps28dfw"
+#define ST_LPS27DEWO_DEV_NAME			"lps27dewo"
 
 #define ST_LPS22DF_MAX_FIFO_LENGTH		127
 
@@ -71,6 +72,10 @@
 
 #define ST_LPS22DF_PRESS_1260_FS_AVL_GAIN	(1000000000UL / 4096UL)
 #define ST_LPS22DF_PRESS_4060_FS_AVL_GAIN	(1000000000UL / 2048UL)
+
+#define ST_LPS27DEWO_PRESS_1260_FS_AVL_GAIN	(1000000000UL / 2700UL)
+#define ST_LPS27DEWO_PRESS_6060_FS_AVL_GAIN	(1000000000UL / 1350UL)
+
 #define ST_LPS22DF_TEMP_FS_AVL_GAIN		100
 
 #define ST_LPS22DF_ODR_LIST_NUM			9
@@ -98,6 +103,7 @@ enum st_lps22df_fifo_mode {
 enum st_lps22df_hw_id {
 	ST_LPS22DF_ID,
 	ST_LPS28DFW_ID,
+	ST_LPS27DEWO_ID,
 	ST_LPS22DF_MAX_ID,
 };
 

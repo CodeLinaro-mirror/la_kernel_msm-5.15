@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2021 STMicroelectronics Inc.
+ * Copyright 2021, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -129,6 +129,24 @@ static const struct st_lps22df_settings st_lps22df_sensor_settings[] = {
 			.fs_avl = {
 				{ ST_LPS22DF_PRESS_1260_FS_AVL_GAIN, 0 },
 				{ ST_LPS22DF_PRESS_4060_FS_AVL_GAIN, 1 },
+			},
+		},
+		.st_multi_scale = true,
+	},
+	{
+		.id = {
+			{
+				.hw_id = ST_LPS27DEWO_ID,
+				.name = ST_LPS27DEWO_DEV_NAME,
+			},
+		},
+		.fs_table = {
+			.addr = ST_LPS22DF_CTRL_REG2_ADDR,
+			.mask = ST_LPS22DF_FS_MODE_MASK,
+			.fs_len = 2,
+			.fs_avl = {
+				{ ST_LPS27DEWO_PRESS_1260_FS_AVL_GAIN, 0 },
+				{ ST_LPS27DEWO_PRESS_6060_FS_AVL_GAIN, 1 },
 			},
 		},
 		.st_multi_scale = true,

@@ -4,6 +4,7 @@ Required properties for all bus drivers:
 - compatible: must be one of:
               "st,lps22df"
               "st,lps28dfw"
+              "st,lps27dewo"
 
 Required properties for the i2c bindings:
 - reg: i2c slave address.
