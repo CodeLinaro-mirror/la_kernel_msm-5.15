@@ -497,7 +497,7 @@ static int ism330dlc_set_watermark(struct ism330dlc_data *cdata)
 			return err;
 
 		fifo_watermark = (fifo_watermark & ST_ISM330DLC_FIFO_THR_MASK) |
-				  ((reg_value & ~ST_ISM330DLC_FIFO_THR_MASK) << 8);
+				  (((u16)reg_value << 8) & ~ST_ISM330DLC_FIFO_THR_MASK);
 
 		err = st_ism330dlc_write_register(cdata,
 						  ST_ISM330DLC_FIFO_THR_L_ADDR,
@@ -1859,7 +1859,7 @@ static ssize_t st_ism330dlc_sysfs_set_sampling_frequency(struct device *dev,
 
 	mutex_lock(&sdata->cdata->odr_lock);
 	if (IS_ENABLED(CONFIG_ST_ISM330DLC_XL_DATA_INJECTION)) {
-		if (!((sdata->sindex & ST_MASK_ID_ACCEL) &&
+		if (!((sdata->sindex == ST_MASK_ID_ACCEL) &&
 		      sdata->cdata->injection_mode)) {
 			if (sdata->cdata->v_odr[sdata->sindex] != odr)
 				err = st_ism330dlc_set_odr(sdata, odr, false);
