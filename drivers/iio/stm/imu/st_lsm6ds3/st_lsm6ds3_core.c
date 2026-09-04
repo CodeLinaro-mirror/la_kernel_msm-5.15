@@ -547,7 +547,8 @@ static int lsm6ds3_set_watermark(struct lsm6ds3_data *cdata)
 			return err;
 
 		fifo_watermark = (fifo_watermark & ST_LSM6DS3_FIFO_THR_MASK) |
-					((reg_value & ~ST_LSM6DS3_FIFO_THR_MASK) << 8);
+				  (((u16)reg_value << 8) &
+				   ~ST_LSM6DS3_FIFO_THR_MASK);
 
 		err = st_lsm6ds3_write_register(cdata,
 						ST_LSM6DS3_FIFO_THR_L_ADDR, 2,
@@ -2652,6 +2653,7 @@ st_lsm6ds3_sysfs_upload_xl_data(struct device *dev,
 	s64 timestamp;
 	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
 	struct lsm6ds3_sensor_data *sdata = iio_priv(indio_dev);
+	int current_samples;
 	int err;
 
 	err = st_iio_device_claim_direct(indio_dev);
@@ -2674,20 +2676,23 @@ st_lsm6ds3_sysfs_upload_xl_data(struct device *dev,
 		return size;
 	}
 
-	while (sdata->cdata->injection_samples >= 10)
-		msleep(200);
-
 	spin_lock(&sdata->cdata->injection_spinlock);
+	while (sdata->cdata->injection_samples >= 10) {
+		spin_unlock(&sdata->cdata->injection_spinlock);
+		msleep(200);
+		spin_lock(&sdata->cdata->injection_spinlock);
+	}
 
 	memcpy(&sdata->cdata->injection_data[
 			sdata->cdata->injection_samples * 3], sample, 3);
 	sdata->cdata->injection_samples++;
 
+	current_samples = sdata->cdata->injection_samples;
 	spin_unlock(&sdata->cdata->injection_spinlock);
 
 	sdata->cdata->last_injection_timestamp = timestamp;
 
-	if (sdata->cdata->injection_samples >= 8)
+	if (current_samples >= 8)
 		hrtimer_start(&sdata->cdata->injection_timer,
 			ktime_set(0, ST_LSM6DS3_26HZ_NS), HRTIMER_MODE_REL);
 
@@ -2700,24 +2705,32 @@ static void st_lsm6ds3_injection_work(struct work_struct *work)
 {
 	int i, err;
 	struct lsm6ds3_data *cdata;
+	u8 sample[3];
 
 	cdata = container_of(work, struct lsm6ds3_data, injection_work);
 
-	if (cdata->injection_samples == 0)
+	spin_lock(&cdata->injection_spinlock);
+	if (cdata->injection_samples == 0) {
+		spin_unlock(&cdata->injection_spinlock);
 		return;
+	}
+
+	memcpy(sample, cdata->injection_data, sizeof(sample));
+	spin_unlock(&cdata->injection_spinlock);
 
 	err = st_lsm6ds3_write_register(cdata, ST_LSM6DS3_INJECT_XL_X_ADDR,
-					3, cdata->injection_data, false);
+					3, sample, false);
 	if (err < 0)
 		return;
 
 	spin_lock(&cdata->injection_spinlock);
+	if (cdata->injection_samples > 0) {
+		for (i = 0; i < cdata->injection_samples - 1; i++)
+			memcpy(&cdata->injection_data[i * 3],
+			       &cdata->injection_data[(i + 1) * 3], 3);
 
-	for (i = 0; i < cdata->injection_samples - 1; i++)
-		memcpy(&cdata->injection_data[i * 3],
-				&cdata->injection_data[(i + 1) * 3], 3);
-
-	cdata->injection_samples--;
+		cdata->injection_samples--;
+	}
 
 	spin_unlock(&cdata->injection_spinlock);
 }
