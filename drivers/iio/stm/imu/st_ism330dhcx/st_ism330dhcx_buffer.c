@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2020 STMicroelectronics Inc.
+ * Copyright 2020, 2026 STMicroelectronics Inc.
  */
 #include <linux/module.h>
 #include <linux/interrupt.h>
@@ -142,8 +142,6 @@ st_ism330dhcx_set_sensor_batching_odr(struct st_ism330dhcx_sensor *s,
 	int err;
 
 	switch (id) {
-	case ST_ISM330DHCX_ID_EXT0:
-	case ST_ISM330DHCX_ID_EXT1:
 	case ST_ISM330DHCX_ID_TEMP:
 	case ST_ISM330DHCX_ID_ACC: {
 		int odr;

@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2020 STMicroelectronics Inc.
+ * Copyright 2020, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -1285,9 +1285,11 @@ st_ism330dhcx_selftest_sensor(struct st_ism330dhcx_sensor *sensor,
 			goto selftest_failure;
 
 		if (status & bitmask) {
-			st_ism330dhcx_read_atomic(sensor->hw, reg,
-						  sizeof(raw_data),
-						  raw_data);
+			ret = st_ism330dhcx_read_atomic(sensor->hw, reg,
+							sizeof(raw_data),
+							raw_data);
+			if (ret < 0)
+				goto selftest_failure;
 			break;
 		}
 
@@ -1364,9 +1366,11 @@ st_ism330dhcx_selftest_sensor(struct st_ism330dhcx_sensor *sensor,
 			goto selftest_failure;
 
 		if (status & bitmask) {
-			st_ism330dhcx_read_atomic(sensor->hw, reg,
-						  sizeof(raw_data),
-						  raw_data);
+			ret = st_ism330dhcx_read_atomic(sensor->hw, reg,
+							sizeof(raw_data),
+							raw_data);
+			if (ret < 0)
+				goto selftest_failure;
 			break;
 		}
 
@@ -1445,6 +1449,10 @@ st_ism330dhcx_selftest_sensor(struct st_ism330dhcx_sensor *sensor,
 	sensor->selftest_status = 1;
 
 selftest_failure:
+	if (ret < 0)
+		dev_err(sensor->hw->dev,
+			"self test failed with return %d\n", ret);
+
 	/* restore selftest to normal mode */
 	st_ism330dhcx_set_selftest(sensor, 0);
 

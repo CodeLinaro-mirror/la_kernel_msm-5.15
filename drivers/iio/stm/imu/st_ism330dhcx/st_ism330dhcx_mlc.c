@@ -926,7 +926,7 @@ int st_ism330dhcx_mlc_check_status(struct st_ism330dhcx_hw *hw)
 		}
 	}
 
-	return ret < 0 ? ret : notify;
+	return notify;
 }
 
 /**
