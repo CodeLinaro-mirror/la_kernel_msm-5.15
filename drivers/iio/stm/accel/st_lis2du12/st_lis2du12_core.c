@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2022 STMicroelectronics Inc.
+ * Copyright 2022, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -25,6 +25,9 @@ static const struct st_lis2du12_std_entry {
 	u16 odr;
 	u8 val;
 } st_lis2du12_std_table[] = {
+	{    0,  0 },
+	{    1,  0 },
+	{    3,  0 },
 	{    6,  3 },
 	{   12,  3 },
 	{   25,  3 },
@@ -37,7 +40,7 @@ static const struct st_lis2du12_std_entry {
 
 static const struct st_lis2du12_odr st_lis2du12_odr_table[ST_LIS2DU12_ODR_TABLE_SIZE] = {
 	{    0,      0, 0x00 },
-	{    1, 500000, 0x01 },
+	{    1, 600000, 0x01 },
 	{    3,      0, 0x02 },
 	{    6,      0, 0x04 },
 	{   12, 500000, 0x05 },
@@ -179,13 +182,9 @@ int st_lis2du12_set_odr(struct st_lis2du12_sensor *sensor,
 					ST_LIS2DU12_CTRL5_ADDR,
 					ST_LIS2DU12_ODR_MASK,
 					st_lis2du12_odr_table[ret].val);
-	if (ret < 0)
-		goto unlock;
-
-unlock:
 	mutex_unlock(&hw->lock);
 
-	return 0;
+	return err < 0 ? err : 0;
 }
 
 static int st_lis2du12_check_whoami(struct st_lis2du12_hw *hw)
