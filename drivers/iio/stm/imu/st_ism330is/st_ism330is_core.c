@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2023 STMicroelectronics Inc.
+ * Copyright 2023, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -1167,7 +1167,7 @@ static int __maybe_unused st_ism330is_suspend(struct device *dev)
 			return err;
 	}
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int __maybe_unused st_ism330is_resume(struct device *dev)
@@ -1189,7 +1189,7 @@ static int __maybe_unused st_ism330is_resume(struct device *dev)
 			return err;
 	}
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 const struct dev_pm_ops st_ism330is_pm_ops = {
