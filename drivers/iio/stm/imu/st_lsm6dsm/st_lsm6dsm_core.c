@@ -2345,7 +2345,7 @@ static ssize_t st_lsm6dsm_sysfs_set_sampling_frequency(struct device *dev,
 
 	mutex_lock(&sdata->cdata->odr_lock);
 	if (IS_ENABLED(CONFIG_ST_LSM6DSM_XL_DATA_INJECTION)) {
-		if (!((sdata->sindex & ST_MASK_ID_ACCEL) &&
+		if (!((sdata->sindex == ST_MASK_ID_ACCEL) &&
 		      sdata->cdata->injection_mode)) {
 			if (sdata->cdata->v_odr[sdata->sindex] != odr)
 				err = st_lsm6dsm_set_odr(sdata, odr, false);
