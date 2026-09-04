@@ -624,7 +624,7 @@ static int st_asm330lhhx_check_irq_config_pin(struct st_asm330lhhx_hw *hw)
 	hw->irq = irq;
 	hw->int_pin = int_pin;
 	hw->emb_pin = emb_pin;
-	hw->has_hw_fifo = irq > 0 ? true : false;
+	hw->has_hw_fifo = true;
 
 	return 0;
 }
@@ -2681,7 +2681,7 @@ st_asm330lhhx_configure_wake_up(struct st_asm330lhhx_hw *hw)
 static int __maybe_unused st_asm330lhhx_suspend(struct device *dev)
 {
 	struct st_asm330lhhx_hw *hw = dev_get_drvdata(dev);
-	int i, err = 0;
+	int i, err;
 
 	dev_info(dev, "Suspending device\n");
 
@@ -2758,7 +2758,7 @@ static int __maybe_unused st_asm330lhhx_suspend(struct device *dev)
 		dev_info(dev, "Enabling wake-up\n");
 	}
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int __maybe_unused st_asm330lhhx_resume(struct device *dev)
