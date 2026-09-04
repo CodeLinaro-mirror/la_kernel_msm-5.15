@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2015 STMicroelectronics Inc.
+ * Copyright 2015, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -1028,6 +1028,9 @@ static int lis2ds12_write_raw(struct iio_dev *indio_dev,
 			if (lis2ds12_fs_table.fs_avl[i].gain == val2)
 				break;
 		}
+
+		if (i == LIS2DS12_FS_LIST_NUM)
+			return -EINVAL;
 
 		err = lis2ds12_set_fs(sdata, lis2ds12_fs_table.fs_avl[i].urv);
 		st_iio_device_release_direct(indio_dev);
