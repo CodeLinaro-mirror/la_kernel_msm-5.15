@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2023 STMicroelectronics Inc.
+ * Copyright 2023, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -1480,7 +1480,7 @@ static int st_lsm6dsv16bx_read_average(struct st_lsm6dsv16bx_sensor *sensor,
 		}
 	}
 
-	if (i != n) {
+	if ((i != n) || (n == 0)) {
 		dev_err(hw->dev,
 			"some samples missing (expected %d, read %d)\n",
 			i, n);
@@ -2452,7 +2452,7 @@ static int __maybe_unused st_lsm6dsv16bx_suspend(struct device *dev)
 
 	dev_info(dev, "Suspending device\n");
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int __maybe_unused st_lsm6dsv16bx_resume(struct device *dev)
