@@ -546,7 +546,8 @@ static int lsm6ds3h_set_watermark(struct lsm6ds3h_data *cdata)
 			return err;
 
 		fifo_watermark = (fifo_watermark & ST_LSM6DS3H_FIFO_THR_MASK) |
-					((reg_value & ~ST_LSM6DS3H_FIFO_THR_MASK) << 8);
+				  (((u16)reg_value << 8) &
+				   ~ST_LSM6DS3H_FIFO_THR_MASK);
 
 		err = st_lsm6ds3h_write_register(cdata,
 						 ST_LSM6DS3H_FIFO_THR_L_ADDR,
@@ -2067,7 +2068,7 @@ static ssize_t st_lsm6ds3h_sysfs_set_sampling_frequency(struct device *dev,
 
 	mutex_lock(&sdata->cdata->odr_lock);
 	if (IS_ENABLED(CONFIG_ST_LSM6DS3H_XL_DATA_INJECTION)) {
-		if (!((sdata->sindex & ST_MASK_ID_ACCEL) &&
+		if (!((sdata->sindex == ST_MASK_ID_ACCEL) &&
 		      sdata->cdata->injection_mode)) {
 			if (sdata->cdata->v_odr[sdata->sindex] != odr)
 				err = st_lsm6ds3h_set_odr(sdata, odr, false);
@@ -2075,8 +2076,8 @@ static ssize_t st_lsm6ds3h_sysfs_set_sampling_frequency(struct device *dev,
 	} else {
 		if (sdata->cdata->v_odr[sdata->sindex] != odr) {
 			if ((sdata->sindex == ST_MASK_ID_ACCEL) &&
-					     (sdata->cdata->sensors_enabled &
-					      BIT(ST_MASK_ID_ACCEL)))
+			    (sdata->cdata->sensors_enabled &
+			     BIT(ST_MASK_ID_ACCEL)))
 				err = lsm6ds3h_enable_accel(sdata->cdata,
 							   ST_MASK_ID_ACCEL,
 							   odr);
