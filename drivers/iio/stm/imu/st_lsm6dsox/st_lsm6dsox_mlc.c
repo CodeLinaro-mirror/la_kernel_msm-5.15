@@ -104,7 +104,7 @@ static int st_lsm6dsox_mlc_enable_sensor(struct st_lsm6dsox_sensor *sensor,
 					 bool enable)
 {
 	struct st_lsm6dsox_hw *hw = sensor->hw;
-	int i, id, err = 0;
+	int i, id, err;
 
 	/* enable acc sensor as trigger */
 	err = st_lsm6dsox_sensor_set_enable(sensor, enable);
@@ -180,7 +180,7 @@ static int st_lsm6dsox_mlc_enable_sensor(struct st_lsm6dsox_sensor *sensor,
 	else
 		hw->enable_mask &= ~BIT(sensor->id);
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int st_lsm6dsox_mlc_write_event_config(struct iio_dev *iio_dev,
@@ -817,7 +817,7 @@ int st_lsm6dsox_mlc_check_status(struct st_lsm6dsox_hw *hw)
 
 					dev_info(hw->dev,
 						 "FSM %d Status %x FSM EVENT %llx\n",
-						 id, mlc_status, (u64)event[i]);
+						 id, fsm_status, (u64)event[i]);
 				}
 			}
 		}
