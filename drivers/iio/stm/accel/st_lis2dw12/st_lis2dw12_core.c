@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2016 STMicroelectronics Inc.
+ * Copyright 2016, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -1315,7 +1315,7 @@ static int __maybe_unused st_lis2dw12_suspend(struct device *dev)
 
 	dev_info(dev, "Suspending device\n");
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int __maybe_unused st_lis2dw12_resume(struct device *dev)
