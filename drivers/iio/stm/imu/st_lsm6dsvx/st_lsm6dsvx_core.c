@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2022 STMicroelectronics Inc.
+ * Copyright 2022, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -2268,7 +2268,7 @@ static int __maybe_unused st_lsm6dsvx_suspend(struct device *dev)
 
 	dev_info(dev, "Suspending device\n");
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int __maybe_unused st_lsm6dsvx_resume(struct device *dev)

@@ -186,7 +186,7 @@ st_lsm6dsvx_mlc_enable_sensor(struct st_lsm6dsvx_sensor *sensor, bool enable)
 	else
 		hw->enable_mask &= ~BIT(sensor->id);
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int
@@ -821,7 +821,7 @@ int st_lsm6dsvx_mlc_check_status(struct st_lsm6dsvx_hw *hw)
 
 					dev_info(hw->dev,
 						 "FSM %d Status %x FSM EVENT %llx\n",
-						 id, mlc_status, (u64)event[i]);
+						 id, fsm_status, (u64)event[i]);
 				}
 			}
 		}
