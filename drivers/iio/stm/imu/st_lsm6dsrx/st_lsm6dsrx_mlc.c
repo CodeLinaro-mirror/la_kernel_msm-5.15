@@ -839,7 +839,7 @@ int st_lsm6dsrx_mlc_check_status(struct st_lsm6dsrx_hw *hw)
 
 					dev_info(hw->dev,
 						 "FSM %d Status %x FSM EVENT %llx\n",
-						 id, mlc_status, (u64)event[i]);
+						 id, fsm_status, (u64)event[i]);
 				}
 			}
 		}
