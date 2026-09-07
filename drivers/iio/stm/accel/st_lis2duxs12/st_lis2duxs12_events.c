@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2024 STMicroelectronics Inc.
+ * Copyright 2024, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -1213,5 +1213,5 @@ int st_lis2duxs12_event_init(struct st_lis2duxs12_hw *hw)
 		return err;
 #endif /* LINUX_VERSION_CODE */
 
-	return err < 0 ? err : 0;
+	return 0;
 }

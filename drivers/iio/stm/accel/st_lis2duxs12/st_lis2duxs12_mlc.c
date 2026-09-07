@@ -135,7 +135,7 @@ st_lis2duxs12_mlc_enable_sensor(struct st_lis2duxs12_sensor *sensor,
 	else
 		hw->enable_mask &= ~BIT(sensor->id);
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int

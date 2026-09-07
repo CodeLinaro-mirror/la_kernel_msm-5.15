@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2022 STMicroelectronics Inc.
+ * Copyright 2022, 2026 STMicroelectronics Inc.
  */
 #include <linux/module.h>
 #include <linux/interrupt.h>
@@ -690,7 +690,7 @@ int st_lis2duxs12_buffers_setup(struct st_lis2duxs12_hw *hw)
 			dev_err(hw->dev,
 				"if qvar enabled only irq pin 1 can be used\n");
 
-			return err;
+			return -EINVAL;
 		}
 	} else {
 		/*
