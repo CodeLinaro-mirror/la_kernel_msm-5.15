@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2023 STMicroelectronics Inc.
+ * Copyright 2023, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -582,7 +582,7 @@ static int __maybe_unused st_h3lis331dl_suspend(struct device *dev)
 	if (device_may_wakeup(dev))
 		enable_irq_wake(hw->irq);
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int __maybe_unused st_h3lis331dl_resume(struct device *dev)

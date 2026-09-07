@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2023 STMicroelectronics Inc.
+ * Copyright 2023, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/interrupt.h>
@@ -121,7 +121,8 @@ static irqreturn_t st_h3lis331dl_buffer_pollfunc(int irq, void *private)
 		iio_push_to_buffers_with_timestamp(indio_dev, iio_buf, hw->ts);
 
 out:
-	iio_trigger_notify_done(indio_dev->trig);
+	if (indio_dev->trig)
+		iio_trigger_notify_done(indio_dev->trig);
 
 	return IRQ_HANDLED;
 }
