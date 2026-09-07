@@ -928,7 +928,7 @@ int st_iis2iclx_mlc_check_status(struct st_iis2iclx_hw *hw)
 		}
 	}
 
-	return ret < 0 ? ret : notify;
+	return notify;
 }
 
 /**
