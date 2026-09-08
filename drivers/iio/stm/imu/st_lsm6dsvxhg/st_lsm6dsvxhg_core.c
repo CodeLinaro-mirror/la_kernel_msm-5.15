@@ -2585,7 +2585,7 @@ static int __maybe_unused st_lsm6dsvxhg_suspend(struct device *dev)
 
 	dev_info(dev, "Suspending device\n");
 
-	return err < 0 ? err : 0;
+	return 0;
 }
 
 static int __maybe_unused st_lsm6dsvxhg_resume(struct device *dev)
