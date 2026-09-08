@@ -4,7 +4,7 @@
  *
  * MEMS Software Solutions Team
  *
- * Copyright 2016 STMicroelectronics Inc.
+ * Copyright 2016, 2026 STMicroelectronics Inc.
  */
 
 #include <linux/kernel.h>
@@ -255,9 +255,9 @@ static int st_acc33_read_raw(struct iio_dev *iio_dev,
 
 		ret = regmap_bulk_read(hw->regmap, ch->address,
 				       (void *)&data, 2);
-		if (err < 0) {
+		if (ret < 0) {
 			st_iio_device_release_direct(iio_dev);
-			return err;
+			return ret;
 		}
 
 		err = st_acc33_set_enable(hw, false);
@@ -510,7 +510,7 @@ static int st_acc33_run_selftest(struct st_acc33_hw *hw)
 	n = 0;
 
 	/* write self test registers */
-	st_acc33_enable_selftest(hw, true);
+	err = st_acc33_enable_selftest(hw, true);
 	if (err < 0)
 		return err;
 
