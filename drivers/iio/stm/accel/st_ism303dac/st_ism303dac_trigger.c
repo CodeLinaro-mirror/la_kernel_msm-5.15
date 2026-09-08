@@ -22,10 +22,13 @@ static void ism303dac_event_management(struct ism303dac_data *cdata,
 				       u8 int_reg_val)
 {
 	u8 status;
+	int ret;
 
 	/* Must read TAP_SRC to remove irq bits */
-	ism303dac_read_register(cdata, ISM303DAC_TAP_SRC_ADDR, 1,
-				&status, true);
+	ret = ism303dac_read_register(cdata, ISM303DAC_TAP_SRC_ADDR, 1,
+				      &status, true);
+	if (ret < 0)
+		return;
 
 	if (CHECK_BIT(cdata->enabled_sensor, ISM303DAC_TAP) &&
 	    (int_reg_val & ISM303DAC_TAP_MASK))
