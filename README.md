@@ -9,7 +9,7 @@ This repository contains STMicroelectronics MEMS IIO drivers for the following L
 - 6.1
 - 6.6
 - 6.12
-- 6.18 (WIP)
+- 6.18
 
 It is intended as a reference source tree for STMicroelectronics Industrial I/O (IIO) sensor drivers and related integration assets. The repository includes drivers for multiple sensor classes such as accelerometers, IMUs, magnetometers, pressure sensors, temperature sensors, humidity sensors, and other STM sensing devices.
 
