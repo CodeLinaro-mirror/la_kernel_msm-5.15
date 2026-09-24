@@ -17,6 +17,7 @@
 #include <linux/iio/triggered_buffer.h>
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/buffer.h>
+#include <linux/sysfs.h>
 #include <linux/version.h>
 
 #include "st_asm330lhhx.h"

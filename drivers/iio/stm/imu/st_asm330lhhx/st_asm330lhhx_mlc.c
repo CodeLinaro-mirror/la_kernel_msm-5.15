@@ -18,6 +18,7 @@
 #include <linux/iio/events.h>
 #include <linux/firmware.h>
 #include <linux/of.h>
+#include <linux/sysfs.h>
 #include <linux/version.h>
 
 #include "st_asm330lhhx.h"

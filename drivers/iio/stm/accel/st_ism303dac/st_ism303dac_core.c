@@ -23,6 +23,7 @@
 #include <linux/of.h>
 #include <linux/pm.h>
 #include <linux/slab.h>
+#include <linux/sysfs.h>
 #include <linux/types.h>
 #include <linux/version.h>
 

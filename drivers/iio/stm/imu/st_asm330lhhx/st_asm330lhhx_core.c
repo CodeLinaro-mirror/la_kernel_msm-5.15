@@ -16,6 +16,7 @@
 #include <linux/pm.h>
 #include <linux/property.h>
 #include <linux/regulator/consumer.h>
+#include <linux/sysfs.h>
 #include <linux/version.h>
 
 #include <linux/platform_data/st_sensors_pdata.h>
