@@ -4613,6 +4613,10 @@ static int stmmac_open(struct net_device *dev)
 	     xpcs_get_an_mode(priv->hw->xpcs, mode) != DW_AN_C73) &&
 	    (!priv->hw->qxpcs ||
 	     qcom_xpcs_get_an_mode(priv->hw->qxpcs, mode) != DW_AN_C73))) {
+		if (priv->phylink_disconnected && priv->mii) {
+			priv->mii->reset(priv->mii);
+			priv->phylink_disconnected = false;
+		}
 		ret = stmmac_init_phy(dev);
 		if (ret) {
 			netdev_err(priv->dev,

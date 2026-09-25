@@ -9319,7 +9319,8 @@ static int qcom_ethqos_resume(struct device *dev)
 	    priv->plat->interface == PHY_INTERFACE_MODE_5GBASER)
 		ethqos_xpcs_irq_enable(ndev);
 
-	if (ethqos->current_phy_mode == DISABLE_PHY_SUSPEND_ENABLE_RESUME) {
+	if (ethqos->current_phy_mode == DISABLE_PHY_SUSPEND_ENABLE_RESUME &&
+	    netif_running(ndev)) {
 		ETHQOSINFO("reset phy after clock\n");
 		ethqos_trigger_phylink(ethqos, true);
 	}
