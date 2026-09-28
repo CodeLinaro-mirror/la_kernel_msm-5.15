@@ -153,10 +153,11 @@ static void dwxgmac2_rx_queue_prio(struct mac_device_info *hw, u32 prio,
 	ctrl2 &= ~clear_mask;
 	ctrl3 &= ~clear_mask;
 
-	/* First assign new priorities to a queue, then
-	 * clear them from others queues
+	/* Replace queue priorities while ensuring the new priorities
+	 * are not mapped to multiple Rx queues.
 	 */
 	if (queue < 4) {
+		ctrl2 &= ~XGMAC_PSRQ(queue);
 		ctrl2 |= (prio << XGMAC_PSRQ_SHIFT(queue)) &
 						XGMAC_PSRQ(queue);
 
@@ -165,6 +166,7 @@ static void dwxgmac2_rx_queue_prio(struct mac_device_info *hw, u32 prio,
 	} else {
 		queue -= 4;
 
+		ctrl3 &= ~XGMAC_PSRQ(queue);
 		ctrl3 |= (prio << XGMAC_PSRQ_SHIFT(queue)) &
 						XGMAC_PSRQ(queue);
 
