@@ -834,6 +834,9 @@ int st_lis2du12_probe(struct device *dev, int irq, struct regmap *regmap)
 		return err;
 
 	for (i = 0; i < ARRAY_SIZE(st_lis2du12_hw_sensor_list); i++) {
+		if (i >= ST_LIS2DU12_ID_MAX)
+			return -EINVAL;
+
 		id = st_lis2du12_hw_sensor_list[i];
 		hw->iio_devs[id] = st_lis2du12_alloc_iiodev(hw, id);
 		if (!hw->iio_devs[id])
