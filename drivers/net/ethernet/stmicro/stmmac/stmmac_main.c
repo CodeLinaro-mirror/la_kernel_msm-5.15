@@ -605,10 +605,8 @@ static void stmmac_get_tx_hwtstamp(struct stmmac_priv *priv,
 	if (priv->plat->insert_ts_pktid) {
 		do {
 			pktid = readl(ioaddr + XGMAC_TXTIMESTAMP_PKTID);
-			if (pktid == 0) {
-				pr_info("Received packet with pktid = 0\n");
+			if (pktid == 0)
 				break;
-			}
 			if (pktid != tx_q->pid) {
 				pr_info("pktid = %d, txq_pktid = %d\n", pktid, tx_q->pid);
 				if (!stmmac_get_mac_tx_timestamp(priv, priv->hw, &ns))
@@ -1288,6 +1286,31 @@ static void stmmac_fpe_link_state_handle(struct stmmac_priv *priv, bool is_up)
 	}
 }
 
+/**
+ *  stmmac_mac_config_rx_queues_routing - Configure RX Queue Routing
+ *  @priv: driver private structure
+ *  Description: It is used for configuring the RX queue routing
+ */
+static void stmmac_mac_config_rx_queues_routing(struct stmmac_priv *priv)
+{
+	u32 rx_queues_count = priv->plat->rx_queues_to_use;
+	u32 queue;
+	u8 packet;
+
+	for (queue = 0; queue < rx_queues_count; queue++) {
+		/* no specific packet type routing specified for the queue */
+		if (priv->plat->rx_queues_cfg[queue].pkt_route == 0x0)
+			continue;
+
+		packet = priv->plat->rx_queues_cfg[queue].pkt_route;
+		stmmac_rx_queue_routing(priv, priv->hw, packet, queue);
+
+		/* Configure Multicast and broadcast additionally if enabled */
+		if (priv->plat->rx_queues_cfg[queue].mbcast_route)
+			stmmac_rx_queue_routing(priv, priv->hw, PACKET_MCBCQ, queue);
+	}
+}
+
 static void stmmac_mac_link_down(struct phylink_config *config,
 				 unsigned int mode, phy_interface_t interface)
 {
@@ -1517,6 +1540,7 @@ static void stmmac_mac_link_up(struct phylink_config *config,
 	if (priv->plat->xpcs_linkup)
 		priv->plat->xpcs_linkup(priv->plat->bsp_priv, speed);
 
+	stmmac_mac_config_rx_queues_routing(priv);
 	if (!priv->plat->fixed_phy_mode || !priv->hw->qxpcs ||
 	    !priv->hw->qxpcs->c37_an_en ||
 	    (priv->plat->fixed_phy_mode && !is_c37_an_supported(priv))) {
@@ -1610,7 +1634,7 @@ static int stmmac_init_phy(struct net_device *dev)
 {
 	struct stmmac_priv *priv = netdev_priv(dev);
 	struct device_node *node;
-	int ret;
+	int ret = 0;
 
 	priv->boot_kpi = false;
 
@@ -1630,37 +1654,14 @@ static int stmmac_init_phy(struct net_device *dev)
 			netdev_err(priv->dev, "no phy at addr %d\n", addr);
 			return -ENODEV;
 		}
-		priv->phydev->mac_managed_pm = true;
 		ret = phylink_connect_phy(priv->phylink, priv->phydev);
-		if (priv->plat->separate_wol_pin) {
-			if (priv->phydev->drv &&
-			    priv->phydev->drv->config_intr &&
-			    !priv->phydev->drv->config_intr(priv->phydev)) {
-				pr_err(" qcom-ethqos: %s config_phy_intr successful after connect\n",
-				       __func__);
-				priv->plat->request_phy_wol(priv->plat);
-			}
-			pr_info("stmmac phy polling mode\n");
-			priv->phydev->irq = PHY_POLL;
-		} else {
-			if (priv->plat->phy_intr_en_extn_stm) {
-				priv->phydev->irq = PHY_MAC_INTERRUPT;
-				priv->phydev->interrupts =  PHY_INTERRUPT_ENABLED;
-
-				if (priv->phydev->drv &&
-				    priv->phydev->drv->config_intr &&
-				    !priv->phydev->drv->config_intr(priv->phydev)) {
-					pr_err(" qcom-ethqos: %s config_phy_intr successful after connect\n",
-					       __func__);
-					priv->plat->request_phy_wol(priv->plat);
-				}
-			} else {
-				pr_info("stmmac phy polling mode\n");
-				priv->phydev->irq = PHY_POLL;
-			}
+		if (ret) {
+			netdev_err(priv->dev, "phylink_connect_phy failed: %d\n", ret);
+			priv->phydev = NULL;
+			return ret;
 		}
-		phy_attached_info(priv->phydev);
 	}
+
 	pr_info(" qcom-ethqos: %s early eth setting stmmac init\n",
 		__func__);
 
@@ -1676,6 +1677,38 @@ static int stmmac_init_phy(struct net_device *dev)
 				__func__);
 		}
 	}
+
+	if (priv->phydev) {
+		if (priv->plat->separate_wol_pin) {
+			if (priv->phydev->drv &&
+			    priv->phydev->drv->config_intr &&
+			    !priv->phydev->drv->config_intr(priv->phydev)) {
+				pr_err(" qcom-ethqos: %s config_phy_intr successful after connect\n",
+				       __func__);
+				priv->plat->request_phy_wol(priv->plat);
+			}
+			pr_info("stmmac phy polling mode\n");
+			priv->phydev->irq = PHY_POLL;
+		} else if (priv->plat->phy_intr_en_extn_stm) {
+			priv->phydev->irq = PHY_MAC_INTERRUPT;
+			priv->phydev->interrupts =  PHY_INTERRUPT_ENABLED;
+
+			if (priv->phydev->drv &&
+			    priv->phydev->drv->config_intr &&
+			    !priv->phydev->drv->config_intr(priv->phydev)) {
+				pr_err(" qcom-ethqos: %s config_phy_intr successful after connect\n",
+				       __func__);
+				priv->plat->request_phy_wol(priv->plat);
+			}
+		} else {
+			pr_info("stmmac phy polling mode\n");
+			priv->phydev->irq = PHY_POLL;
+		}
+		phy_attached_info(priv->phydev);
+	}
+
+	if (priv->phydev)
+		priv->phydev->mac_managed_pm = true;
 
 	if (!priv->plat->pmt) {
 		struct ethtool_wolinfo wol = { .cmd = ETHTOOL_GWOL };
@@ -3329,7 +3362,7 @@ static void stmmac_dma_interrupt(struct stmmac_priv *priv)
 	u32 channels_to_check = tx_channel_count > rx_channel_count ?
 				tx_channel_count : rx_channel_count;
 	int chan;
-	int status[max_t(u32, MTL_MAX_TX_QUEUES, MTL_MAX_RX_QUEUES)];
+	int status[MAX_T(u32, MTL_MAX_TX_QUEUES, MTL_MAX_RX_QUEUES)];
 
 	/* Make sure we never check beyond our status buffer. */
 	if (WARN_ON_ONCE(channels_to_check > ARRAY_SIZE(status)))
@@ -3693,31 +3726,6 @@ static void stmmac_mac_config_tx_queues_prio(struct stmmac_priv *priv)
 
 		prio = priv->plat->tx_queues_cfg[queue].prio;
 		stmmac_tx_queue_prio(priv, priv->hw, prio, queue);
-	}
-}
-
-/**
- *  stmmac_mac_config_rx_queues_routing - Configure RX Queue Routing
- *  @priv: driver private structure
- *  Description: It is used for configuring the RX queue routing
- */
-static void stmmac_mac_config_rx_queues_routing(struct stmmac_priv *priv)
-{
-	u32 rx_queues_count = priv->plat->rx_queues_to_use;
-	u32 queue;
-	u8 packet;
-
-	for (queue = 0; queue < rx_queues_count; queue++) {
-		/* no specific packet type routing specified for the queue */
-		if (priv->plat->rx_queues_cfg[queue].pkt_route == 0x0)
-			continue;
-
-		packet = priv->plat->rx_queues_cfg[queue].pkt_route;
-		stmmac_rx_queue_routing(priv, priv->hw, packet, queue);
-
-		/* Configure Multicast and broadcast additionally if enabled */
-		if (priv->plat->rx_queues_cfg[queue].mbcast_route)
-			stmmac_rx_queue_routing(priv, priv->hw, PACKET_MCBCQ, queue);
 	}
 }
 
@@ -4571,7 +4579,7 @@ static int stmmac_open(struct net_device *dev)
 	int mode = priv->plat->phy_interface;
 	int bfsize = 0;
 	u32 chan;
-	int ret;
+	int ret, res;
 	u32 rx_channel_count = priv->plat->rx_queues_to_use;
 
 #if IS_ENABLED(CONFIG_ETHQOS_QCOM_VER4)
@@ -4768,8 +4776,8 @@ init_phy_error:
 
 #if IS_ENABLED(CONFIG_ETHQOS_QCOM_VER4)
 	if (priv->plat->enable_power_saving) {
-		ret = priv->plat->enable_power_saving(priv->dev, true);
-		netdev_info(priv->dev, "%s enable power saving for error case", __func__, ret);
+		res = priv->plat->enable_power_saving(priv->dev, true);
+		netdev_info(priv->dev, "%s enable power saving for error case", __func__, res);
 	}
 #endif
 
@@ -8505,6 +8513,8 @@ error_phy_setup:
 	    priv->hw->pcs != STMMAC_PCS_RTBI)
 		stmmac_mdio_unregister(ndev);
 error_mdio_register:
+	if (priv->plat->mdio_icc_cancel)
+		priv->plat->mdio_icc_cancel(priv->plat->bsp_priv);
 	stmmac_napi_del(ndev);
 error_hw_init:
 	destroy_workqueue(priv->wq);

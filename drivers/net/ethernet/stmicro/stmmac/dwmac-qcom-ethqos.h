@@ -543,6 +543,8 @@ struct qcom_ethqos {
 	struct kobject *sysfs_kobj;
 
 	int curr_serdes_speed;
+	/* Drive SERDES init from serdes_prog_table instead of the hard-coded sequences */
+	bool enable_debug_serdes_mode;
 	unsigned int emac_phy_off_suspend;
 	int loopback_speed;
 	u32 max_speed_enforce;

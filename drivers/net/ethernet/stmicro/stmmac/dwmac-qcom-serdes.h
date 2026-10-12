@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-/* Copyright (c) 2022-2025 Qualcomm Innovation Center, Inc. All rights reserved. */
+/* Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries. */
 
 #ifndef	_DWMAC_QCOM_SERDES_H
 #define	_DWMAC_QCOM_SERDES_H
@@ -575,8 +575,20 @@ void qcom_ethqos_serdes_soft_reset(struct qcom_ethqos *ethqos);
 #if IS_ENABLED(CONFIG_ETHQOS_QCOM_VER4)
 void qcom_ethqos_serdes_power_down(struct qcom_ethqos *ethqos);
 #endif
+int qcom_ethqos_serdes_create_sysfs(struct qcom_ethqos *ethqos);
+int qcom_ethqos_serdes_remove_sysfs(struct qcom_ethqos *ethqos);
 #else
 static inline int qcom_ethqos_serdes_configure_dt(struct qcom_ethqos *ethqos, int interface)
+{
+	return 0;
+}
+
+static inline int qcom_ethqos_serdes_create_sysfs(struct qcom_ethqos *ethqos)
+{
+	return 0;
+}
+
+static inline int qcom_ethqos_serdes_remove_sysfs(struct qcom_ethqos *ethqos)
 {
 	return 0;
 }

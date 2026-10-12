@@ -546,6 +546,9 @@
 #define SMI230_SELF_TEST_DELAY_MS	UINT8_C(3)
 #define SMI230_POWER_CONFIG_DELAY	UINT8_C(5)
 #define SMI230_SENSOR_SETTLE_TIME_MS	UINT8_C(30)
+
+/*! Number of write-and-verify attempts for power mode changes */
+#define SMI230_POWER_MODE_SET_RETRY   UINT8_C(3)
 #define SMI230_SELF_TEST_DATA_READ_MS	UINT8_C(50)
 #define SMI230_ASIC_INIT_TIME_MS	UINT8_C(150)
 
@@ -894,6 +897,9 @@ struct smi230_cfg {
 
 	/*! fifo watermark level */
 	uint8_t fifo_wm;
+
+	/*! power mode backup when system go to sleep*/
+	uint8_t power_bak;
 };
 
 struct smi230_gyro_regs {
@@ -1315,6 +1321,12 @@ struct smi230_dev {
 
 	/*! flag to indicate if gyro_regs is saved */
 	bool gyro_regs_saved;
+
+	/*! last power mode actually applied to the gyro hardware. Used to
+	 * detect power-mode transitions instead of reading the LPM1 register,
+	 * which is not reliable in deep suspend: it can read back 0x00 (==
+	 * NORMAL) even when the device is settled in deep suspend. */
+	uint8_t gyro_power_applied;
 
 	/*! pm suspend entry  */
 	enum smi230_gyro_suspend_mode gyro_sus_etr;
