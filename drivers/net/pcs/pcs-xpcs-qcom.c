@@ -383,6 +383,10 @@ int qcom_xpcs_verify_lnk_status_usxgmii(struct dw_xpcs_qcom *xpcs)
 	int ret;
 
 	do {
+		/* The first read of DW_SR_MII_MMD_STS does not return the proper value.
+		 * Read the register twice to get a stable and proper value.
+		 */
+		qcom_xpcs_read(xpcs, DW_SR_MII_MMD_STS);
 		ret = qcom_xpcs_read(xpcs, DW_SR_MII_MMD_STS);
 		if (ret < 0)
 			return ret;
