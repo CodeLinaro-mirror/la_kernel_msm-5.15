@@ -1540,7 +1540,8 @@ static void stmmac_mac_link_up(struct phylink_config *config,
 	if (priv->plat->xpcs_linkup)
 		priv->plat->xpcs_linkup(priv->plat->bsp_priv, speed);
 
-	stmmac_mac_config_rx_queues_routing(priv);
+	if (!priv->plat->fixed_phy_mode)
+		stmmac_mac_config_rx_queues_routing(priv);
 	if (!priv->plat->fixed_phy_mode || !priv->hw->qxpcs ||
 	    !priv->hw->qxpcs->c37_an_en ||
 	    (priv->plat->fixed_phy_mode && !is_c37_an_supported(priv))) {
